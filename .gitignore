@@ -1,0 +1,27 @@
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtual environment
+venv/
+.env/
+.venv/
+
+# Environment variables
+.env
+.env.*
+
+# Logs
+*.log
+
+# SQLite (varsa)
+*.db
+
+# IDE dosyaları
+.vscode/
+.idea/
+
+# OS dosyaları
+.DS_Store
+Thumbs.db
