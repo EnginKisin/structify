@@ -6,7 +6,12 @@ genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
 
 def call_gemini(prompt: str) -> str:
     model = genai.GenerativeModel("gemini-2.5-flash")
-    response = model.generate_content(prompt)
+    response = model.generate_content(
+        prompt,
+        generation_config={
+            "temperature": 0,
+        }
+    )
 
     text = response.text or ""
 

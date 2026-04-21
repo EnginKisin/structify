@@ -1,6 +1,8 @@
 import json
 from app.providers.gemini import call_gemini
 from app.core.prompt_builder import build_prompt
+from app.core.parser import safe_parse_json
+
 
 def validate(data: dict) -> dict:
     if "email" in data and data["email"]:
@@ -15,7 +17,13 @@ def extract(text: str, schema: dict | None, include_suggested: bool = False):
     response_text = call_gemini(prompt)
 
     try:
-        parsed = json.loads(response_text)
+        parsed = safe_parse_json(response_text)
+
+        if parsed is None:
+            if schema:
+                return {k: None for k in schema.keys()}, {}
+            return {}, {}
+        
     except Exception:
         if schema:
             return {k: None for k in schema.keys()}, {}
