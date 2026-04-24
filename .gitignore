@@ -15,7 +15,7 @@ venv/
 # Logs
 *.log
 
-# SQLite (varsa)
+# SQLite
 *.db
 
 # IDE dosyaları
