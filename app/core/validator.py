@@ -13,31 +13,36 @@ def normalize_email(val):
 
     val = val.strip().lower()
 
-    if re.match(r"^[^@]+@[^@]+\.[^@]+$", val):
-        return val
-
-    return None
+    pattern = r"^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
+    return val if re.match(pattern, val) else None
 
 
 def normalize_number(val):
-    try:
+    if isinstance(val, (int, float)):
         return float(val)
-    except:
-        return None
+
+    if isinstance(val, str):
+        val = val.replace(",", "").strip()
+        try:
+            return float(val)
+        except:
+            return None
+
+    return None
 
 
 def normalize_enum(val, options: list):
     if not isinstance(val, str):
         return None
 
-    val_lower = val.lower()
+    val = val.lower().strip()
 
     for opt in options:
-        if val_lower == opt.lower():
+        if val == opt.lower():
             return opt
 
     for opt in options:
-        if opt.lower() in val_lower:
+        if opt.lower() in val:
             return opt
 
     return None
@@ -77,6 +82,7 @@ def validate_and_normalize(data: dict, schema: dict | None) -> dict:
                 cleaned[key] = val
 
             continue
+
 
         if rule == "string":
             cleaned[key] = normalize_string(val)

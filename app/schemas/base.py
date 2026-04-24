@@ -7,6 +7,7 @@ class ExtractionRequest(BaseModel):
     schema: Dict[str, Any] | None = None
     execution_mode: Optional[str] = "fast"  # "fast" | "safe"
     provider: Optional[str] = "gemini"
+    debug: bool = False
 
 
 class ExtractionResponse(BaseModel):
@@ -18,6 +19,7 @@ class ExtractionResponse(BaseModel):
     suggested_schema: Dict[str, Any]
     processing_time: float
     cached: bool
+    debug: Optional[Dict[str, Any]] = None
 
 
 class ErrorResponse(BaseModel):

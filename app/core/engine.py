@@ -1,9 +1,9 @@
 import time
 from app.core.extractor import extract
 from app.providers.factory import get_provider, list_providers
-from app.core.cache import SimpleCache
+from app.core.cache import LRUCache
 
-cache = SimpleCache()
+cache = LRUCache()
 
 class ExtractionEngine:
 
@@ -15,7 +15,7 @@ class ExtractionEngine:
         except ValueError:
             self.provider = None
 
-    def run(self, text: str, schema: dict | None, execution_mode: str = "fast"):
+    def run(self, text: str, schema: dict | None, execution_mode: str = "fast", debug: bool = False):
 
         start_time = time.time()
         schema = schema or {}
@@ -25,6 +25,12 @@ class ExtractionEngine:
         cached = cache.get(cache_key)
         if cached:
             cached["cached"] = True
+            cached["processing_time"] = 0
+            if debug:
+                cached["debug"] = {
+                    "cache_hit": True,
+                    "note": "debug limited: served from cache"
+                }
             return cached
 
         if not self.provider:
@@ -37,23 +43,26 @@ class ExtractionEngine:
         mode = "schema" if schema else "auto"
 
         if execution_mode == "fast":
-            data, suggested = extract(
+            data, suggested, debug_info = extract(
                 text,
                 schema,
                 include_suggested=True,
-                provider_instance=self.provider
+                provider_instance=self.provider,
+                debug=debug
             )
         else:
-            data, _ = extract(
+            data, _, debug_info = extract(
                 text,
                 schema,
-                provider_instance=self.provider
+                provider_instance=self.provider,
+                debug=debug
             )
 
-            auto_data, _ = extract(
+            auto_data, _, _ = extract(
                 text,
                 None,
-                provider_instance=self.provider
+                provider_instance=self.provider,
+                debug=debug
             )
 
             suggested = {
@@ -82,6 +91,12 @@ class ExtractionEngine:
             "cached": False
         }
 
-        cache.set(cache_key, result)
+        if debug:
+            result["debug"] = {
+                **debug_info,
+                "cache_hit": False
+            }
+
+        cache.set(cache_key, {k: v for k, v in result.items() if k != "debug"})
 
         return result

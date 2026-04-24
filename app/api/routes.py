@@ -9,5 +9,5 @@ router = APIRouter()
 
 @router.post("/extract", response_model=Union[ExtractionResponse, ErrorResponse])
 def extract_endpoint(req: ExtractionRequest):
-    result = run_extraction(req.text, req.schema, req.execution_mode, req.provider)
+    result = run_extraction(req.text, req.schema, req.execution_mode, req.provider, req.debug)
     return result
