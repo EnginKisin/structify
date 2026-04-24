@@ -3,6 +3,7 @@
 **AI-powered structured data extraction with schema enforcement and smart schema discovery.**
 
 Structify transforms unstructured text into clean, structured JSON using LLMs.
+A lightweight LLM-powered extraction engine with validation, caching, and confidence scoring.
 It supports both **schema-based extraction** and **schema-less parsing**, with optional **automatic schema suggestions**.
 
 ---
@@ -27,6 +28,11 @@ It supports both **schema-based extraction** and **schema-less parsing**, with o
   Know which fields are missing and how reliable the output is.
 
 * ⏱ **Processing time tracking**
+* **Provider-based architecture**
+* **LRU Caching layer**
+* **Validation & normalization pipeline**
+* **Confidence scoring (rule-based)**
+* **CDebug mode for full extraction visibility**
 
 ---
 
@@ -49,6 +55,11 @@ Structify operates in two dimensions:
 | ------ | ------------------------------------------------------------------ |
 | `fast` | ⚡ Single LLM call (faster, cheaper)                                |
 | `safe` | 🧠 Dual LLM calls (more accurate, especially for suggested fields) |
+
+---
+
+### 3. Architecture
+  Text → Prompt → LLM → JSON Parse → Validation → Confidence → Response
 
 ---
 
@@ -94,7 +105,9 @@ uvicorn app.main:app --reload
     "email": "string",
     "intent": ["buy", "sell", "question"]
   },
-  "execution_mode": "safe"
+  "execution_mode": "safe",
+  "provider": "gemini",
+  "debug": true
 }
 ```
 
@@ -112,15 +125,13 @@ uvicorn app.main:app --reload
     "intent": "buy"
   },
   "missing": [],
-  "confidence": {
-    "name": 1.0,
-    "email": 1.0,
-    "intent": 1.0
-  },
+  "confidence": {...},
   "suggested_schema": {
     "phone": "string"
   },
-  "processing_time": 0.842
+  "processing_time": 0.842,
+  "cached": false,
+  "debug": {...}
 }
 ```
 
