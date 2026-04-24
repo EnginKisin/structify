@@ -2,6 +2,7 @@ import time
 from app.core.extractor import extract
 from app.providers.factory import get_provider, list_providers
 from app.core.cache import LRUCache
+from app.core.confidence import compute_confidence
 
 cache = LRUCache()
 
@@ -73,10 +74,8 @@ class ExtractionEngine:
 
         missing = [k for k, v in data.items() if v is None] if schema else []
 
-        confidence = {
-            k: 1.0 if v is not None else 0.0
-            for k, v in data.items()
-        }
+        confidence = compute_confidence(data, schema, text)
+
 
         processing_time = round(time.time() - start_time, 3)
 
