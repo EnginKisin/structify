@@ -1,20 +1,13 @@
-import json
-from app.providers.gemini import call_gemini
 from app.core.prompt_builder import build_prompt
 from app.core.parser import safe_parse_json
+from app.core.validator import validate_and_normalize
 
-
-def validate(data: dict) -> dict:
-    if "email" in data and data["email"]:
-        if "@" not in data["email"]:
-            data["email"] = None
-
-    return data
-
-def extract(text: str, schema: dict | None, include_suggested: bool = False):
+def extract(text: str, schema: dict | None, include_suggested: bool = False, provider_instance=None):
 
     prompt = build_prompt(text, schema, include_suggested)
-    response_text = call_gemini(prompt)
+
+    response_text = provider_instance.generate(prompt)
+
 
     try:
         parsed = safe_parse_json(response_text)
@@ -42,7 +35,7 @@ def extract(text: str, schema: dict | None, include_suggested: bool = False):
                 if data[k] not in v:
                     data[k] = None
 
-    data = validate(data)
+    data = validate_and_normalize(data, schema)
 
     return data, suggested
 
