@@ -68,7 +68,7 @@ Text → Prompt Builder → LLM Provider → JSON Parser → Validator → Confi
 ## 📦 Installation
 
 ```bash
-git clone https://github.com/your-username/structify.git
+git clone https://github.com/EnginKisin/structify.git
 cd structify
 python -m venv venv
 source venv/bin/activate
