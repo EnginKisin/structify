@@ -8,31 +8,33 @@ It supports both **schema-based extraction** and **schema-less parsing**, with o
 
 ---
 
+## 🌐 API Overview
+
+Structify exposes a REST API for structured data extraction.
+
+### Endpoint
+`POST /extract`
+
+---
+
 ## ✨ Features
 
 * 🧠 **Schema-based extraction**
-  Define your own JSON schema and extract structured data accordingly.
-
 * 🔍 **Schema-less smart parsing**
-  Provide only text, and Structify generates a meaningful JSON automatically.
-
 * 💡 **Suggested schema generation**
-  Automatically detects missing fields (e.g. phone, address) and suggests them.
-
 * ⚡ **Fast & Safe execution modes**
-
   * `fast` → single LLM call (low latency)
   * `safe` → multi-step extraction (higher accuracy)
-
 * 📊 **Confidence & missing field detection**
-  Know which fields are missing and how reliable the output is.
-
 * ⏱ **Processing time tracking**
-* **Provider-based architecture**
-* **LRU Caching layer**
-* **Validation & normalization pipeline**
-* **Confidence scoring (rule-based)**
-* **CDebug mode for full extraction visibility**
+* ⚙️ **Provider-based architecture (extensible LLM support)**
+* 🧹 **Validation & normalization pipeline**
+* 🧠 **Rule-based confidence scoring**
+* 💾 **LRU caching layer**
+* 🐛 **Debug mode for full extraction visibility**
+* 🚨 **Global error handling**
+* 📏 **Input validation (length limits)**
+* 🚦 **Rate limiting (IP-based)**
 
 ---
 
@@ -59,7 +61,7 @@ Structify operates in two dimensions:
 ---
 
 ### 3. Architecture
-  Text → Prompt → LLM → JSON Parse → Validation → Confidence → Response
+Text → Prompt Builder → LLM Provider → JSON Parser → Validator → Confidence Engine → Response
 
 ---
 
@@ -77,10 +79,25 @@ pip install -r requirements.txt
 
 ## 🔑 Environment Variables
 
+> ⚠️ Do not commit your `.env` file. Use `.env.example` instead.
+
 Create a `.env` file:
 
 ```env
 GEMINI_API_KEY=your_gemini_api_key
+GEMINI_MODEL=gemini-2.5-flash
+GEMINI_TEMPERATURE=0
+
+RATE_LIMIT=5      # requests per window
+RATE_WINDOW=60    # seconds
+
+MAX_TEXT_LENGTH=5000
+MAX_SCHEMA_FIELDS=50
+
+CACHE_TTL=300
+CACHE_SIZE=1000
+
+LLM_TIMEOUT=10
 ```
 
 ---

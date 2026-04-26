@@ -21,8 +21,3 @@ class ExtractionResponse(BaseModel):
     cached: bool
     debug: Optional[Dict[str, Any]] = None
 
-
-class ErrorResponse(BaseModel):
-    error: str
-    message: str
-    available_providers: list[str]

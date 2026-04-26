@@ -3,10 +3,10 @@ import json
 import time
 import threading
 from collections import OrderedDict
-
+from app.core.config import CACHE_TTL, CACHE_SIZE
 
 class LRUCache:
-    def __init__(self, ttl_seconds: int = 300, max_size: int = 1000):
+    def __init__(self, ttl_seconds: int = CACHE_TTL, max_size: int = CACHE_SIZE):
         self.store = OrderedDict()
         self.ttl = ttl_seconds
         self.max_size = max_size

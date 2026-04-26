@@ -3,6 +3,8 @@ from app.core.extractor import extract
 from app.providers.factory import get_provider, list_providers
 from app.core.cache import LRUCache
 from app.core.confidence import compute_confidence
+from fastapi import HTTPException
+from app.core.config import MAX_TEXT_LENGTH, MAX_SCHEMA_FIELDS
 
 cache = LRUCache()
 
@@ -17,6 +19,24 @@ class ExtractionEngine:
             self.provider = None
 
     def run(self, text: str, schema: dict | None, execution_mode: str = "fast", debug: bool = False):
+
+        if len(text) > MAX_TEXT_LENGTH:
+            raise HTTPException(
+                status_code=400,
+                detail={
+                    "error": "text_too_long",
+                    "message": "Text exceeds maximum length of {MAX_TEXT_LENGTH} characters",
+                }
+            )
+        
+        if schema and len(schema) > MAX_SCHEMA_FIELDS:
+            raise HTTPException(
+                status_code=400,
+                detail={
+                    "error": "schema_too_long",
+                    "message": "Schema exceeds maximum of {MAX_SCHEMA_FIELDS} fields",
+                }
+            )
 
         start_time = time.time()
         schema = schema or {}
@@ -33,13 +53,16 @@ class ExtractionEngine:
                     "note": "debug limited: served from cache"
                 }
             return cached
-
+        
         if not self.provider:
-            return {
-                "error": "unsupported_provider",
-                "message": f"Provider '{self.provider_name}' desteklenmiyor",
-                "available_providers": list_providers()
-            }
+            raise HTTPException(
+                status_code=400,
+                detail={
+                    "error": "unsupported_provider",
+                    "message": f"Provider '{self.provider_name}' desteklenmiyor",
+                    "available_providers": list_providers()
+                }
+            )
 
         mode = "schema" if schema else "auto"
 

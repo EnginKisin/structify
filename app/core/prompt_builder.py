@@ -16,6 +16,11 @@ STRICT OUTPUT RULES:
 - NO explanation
 - NO extra text
 - NO comments
+
+FIELD NAMING RULES:
+- ALL field names MUST be in English
+- NEVER use Turkish or other languages for keys
+- Use standard/common field names (e.g. name, email, phone, intent)
 """
 
     #AUTO MODE (no schema)
@@ -27,7 +32,8 @@ Extract structured information from the text.
 
 Constraints:
 - Use short and clear field names
-- Max 6 fields
+- Prefer at most 6 fields unless more are clearly important
+- Field names MUST be in English
 - Prefer common fields like name, email, phone, intent
 - Do not create duplicate fields (e.g. email vs email_address)
 - If unsure, omit the field or set it to null
@@ -71,6 +77,7 @@ Rules:
 - Missing values → null
 - NO extra keys inside "data"
 - Extract additional fields NOT in schema into "suggested_schema"
+- suggested_schema keys MUST be in English (e.g. "phone" NOT "telefon")
 
 For suggested_schema:
 - Use simple types: string, number, boolean
