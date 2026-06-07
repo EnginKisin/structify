@@ -2,7 +2,7 @@ from app.core.prompt_builder import build_prompt
 from app.core.parser import safe_parse_json
 from app.core.validator import validate_and_normalize
 
-def extract(text: str, schema: dict | None, include_suggested: bool = False, provider_instance=None, debug: bool = False):
+async def extract(text: str, schema: dict | None, include_suggested: bool = False, provider_instance=None, debug: bool = False):
 
     prompt = build_prompt(text, schema, include_suggested)
 
@@ -11,7 +11,7 @@ def extract(text: str, schema: dict | None, include_suggested: bool = False, pro
     if debug:
         debug_info["prompt"] = prompt
 
-    response_text = provider_instance.generate(prompt)
+    response_text = await provider_instance.generate(prompt)
 
     if debug:
         debug_info["raw_response"] = response_text

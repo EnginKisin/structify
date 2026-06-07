@@ -10,11 +10,10 @@ router = APIRouter()
 limiter = RateLimiter(max_requests=RATE_LIMIT, window_seconds=RATE_WINDOW)
 
 @router.post("/extract", response_model=ExtractionResponse)
-def extract_endpoint(req: ExtractionRequest, request: Request):
-
+async def extract_endpoint(req: ExtractionRequest, request: Request):
     client_ip = request.client.host
 
-    if not limiter.is_allowed(client_ip):
+    if not await limiter.is_allowed(client_ip):
         raise HTTPException(
             status_code=429,
             detail={
@@ -22,7 +21,7 @@ def extract_endpoint(req: ExtractionRequest, request: Request):
                 "message": "Too many requests. Try again later."
             }
         )
-
-    result = run_extraction(req.text, req.schema, req.execution_mode, req.provider, req.debug)
+    
+    result = await run_extraction(req.text, req.schema, req.execution_mode, req.provider, req.debug)
 
     return result

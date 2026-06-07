@@ -1,7 +1,7 @@
-import hashlib
-import json
 import time
-import threading
+import asyncio
+import json
+import hashlib
 from collections import OrderedDict
 from app.core.config import CACHE_TTL, CACHE_SIZE
 
@@ -10,21 +10,21 @@ class LRUCache:
         self.store = OrderedDict()
         self.ttl = ttl_seconds
         self.max_size = max_size
-        self.lock = threading.Lock()
+        self.lock = asyncio.Lock()
 
     def make_key(self, text: str, schema: dict, execution_mode: str, provider: str):
         payload = {
             "text": text,
             "schema": schema,
-            "execution_mode":execution_mode,
+            "execution_mode": execution_mode,
             "provider": provider,
         }
 
         raw = json.dumps(payload, sort_keys=True)
         return hashlib.md5(raw.encode()).hexdigest()
-    
-    def get(self, key: str):
-        with self.lock:
+
+    async def get(self, key: str):
+        async with self.lock:
             if key not in self.store:
                 return None
 
@@ -38,8 +38,8 @@ class LRUCache:
 
             return entry["value"]
 
-    def set(self, key: str, value: dict):
-        with self.lock:
+    async def set(self, key: str, value: dict):
+        async with self.lock:
             if key in self.store:
                 self.store.move_to_end(key)
 

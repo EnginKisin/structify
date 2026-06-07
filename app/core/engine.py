@@ -18,14 +18,14 @@ class ExtractionEngine:
         except ValueError:
             self.provider = None
 
-    def run(self, text: str, schema: dict | None, execution_mode: str = "fast", debug: bool = False):
+    async def run(self, text: str, schema: dict | None, execution_mode: str = "fast", debug: bool = False):
 
         if len(text) > MAX_TEXT_LENGTH:
             raise HTTPException(
                 status_code=400,
                 detail={
                     "error": "text_too_long",
-                    "message": "Text exceeds maximum length of {MAX_TEXT_LENGTH} characters",
+                    "message": f"Text exceeds maximum length of {MAX_TEXT_LENGTH} characters",
                 }
             )
         
@@ -34,7 +34,7 @@ class ExtractionEngine:
                 status_code=400,
                 detail={
                     "error": "schema_too_long",
-                    "message": "Schema exceeds maximum of {MAX_SCHEMA_FIELDS} fields",
+                    "message": f"Schema exceeds maximum of {MAX_SCHEMA_FIELDS} fields",
                 }
             )
 
@@ -43,7 +43,7 @@ class ExtractionEngine:
 
         cache_key = cache.make_key(text, schema, execution_mode, self.provider_name)
 
-        cached = cache.get(cache_key)
+        cached = await cache.get(cache_key)
         if cached:
             cached["cached"] = True
             cached["processing_time"] = 0
@@ -67,7 +67,7 @@ class ExtractionEngine:
         mode = "schema" if schema else "auto"
 
         if execution_mode == "fast":
-            data, suggested, debug_info = extract(
+            data, suggested, debug_info = await extract(
                 text,
                 schema,
                 include_suggested=True,
@@ -75,14 +75,14 @@ class ExtractionEngine:
                 debug=debug
             )
         else:
-            data, _, debug_info = extract(
+            data, _, debug_info = await extract(
                 text,
                 schema,
                 provider_instance=self.provider,
                 debug=debug
             )
 
-            auto_data, _, _ = extract(
+            auto_data, _, _ = await extract(
                 text,
                 None,
                 provider_instance=self.provider,
@@ -119,6 +119,6 @@ class ExtractionEngine:
                 "cache_hit": False
             }
 
-        cache.set(cache_key, {k: v for k, v in result.items() if k != "debug"})
+        await cache.set(cache_key, {k: v for k, v in result.items() if k != "debug"})
 
         return result

@@ -11,9 +11,9 @@ class GeminiProvider(BaseLLM):
     def __init__(self):
         self.model = genai.GenerativeModel(GEMINI_MODEL)
     
-    def generate(self, prompt: str) -> str:
+    async def generate(self, prompt: str) -> str:
         try:
-            response = self.model.generate_content(
+            response = await self.model.generate_content_async(
                 prompt,
                 generation_config={
                     "temperature": GEMINI_TEMPERATURE

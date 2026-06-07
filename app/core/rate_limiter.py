@@ -1,24 +1,26 @@
 import time
+import asyncio
+from collections import defaultdict, deque
 
 class RateLimiter:
-    def __init__(self, max_requests, window_seconds):
+    def __init__(self, max_requests: int, window_seconds: int):
         self.max_requests = max_requests
         self.window = window_seconds
-        self.store = {}
+        self.store = defaultdict(deque)
+        self.lock = asyncio.Lock()
 
-    def is_allowed(self, key: str) -> bool:
+    async def is_allowed(self, key: str) -> bool:
         now = time.time()
 
-        if key not in self.store:
-            self.store[key] = []
+        async with self.lock:
+            q = self.store[key]
 
-        self.store[key] = [
-            t for t in self.store[key]
-            if now - t < self.window
-        ]
+            while q and now - q[0] > self.window:
+                q.popleft()
 
-        if len(self.store[key]) >= self.max_requests:
-            return False
+            if len(q) >= self.max_requests:
+                return False
 
-        self.store[key].append(now)
-        return True
+            q.append(now)
+            return True
+
